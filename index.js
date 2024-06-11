@@ -2,6 +2,7 @@ require("dotenv").config();
 const { IgApiClient } = require('instagram-private-api');
 const { get } = require('request-promise');
 const express = require('express');
+const winston = require('winston');
 
 
 
@@ -10,12 +11,18 @@ const port = process.env.PORT || 6776;
 
 
 const ig = new IgApiClient();
+app.use(express.json())
+
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [new winston.transports.Console()],
+  });
 
 app.post('/post', async(req,res) =>{
-    console.log(req.body);
+    logger.info(req.body)
 
     try{
-        console.log("hiiiiii");
         const { caption, imageUrl, username, password } = req.body;
         ig.state.generateDevice(username);
         const loggedInUser = await ig.account.login(username, password);
