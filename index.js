@@ -4,6 +4,8 @@ const { get } = require('request-promise');
 const express = require('express');
 const winston = require('winston');
 
+const { combine, timestamp, json } = winston.format;
+
 
 
 const app = express();
@@ -14,13 +16,16 @@ const ig = new IgApiClient();
 app.use(express.json())
 
 const logger = winston.createLogger({
-    level: 'info',
-    format: winston.format.json(),
-    transports: [new winston.transports.Console()],
+    level: 'debug',
+    format: combine(timestamp(), json()),
+    transports: [new winston.transports.Console(),
+        new winston.transports.File({ filename: './logs/ServerLogs.log' }),
+    ],
+    
   });
 
 app.post('/post', async(req,res) =>{
-    logger.info(req.body)
+    logger.info({"Body":"Caption : "+req.body.caption +", Image : "+ req.body.imageUrl +", Username : "+ req.body.username })
 
     try{
         const { caption, imageUrl, username, password } = req.body;
@@ -37,17 +42,17 @@ app.post('/post', async(req,res) =>{
                 file: imageBuffer,
                 caption: caption, 
             });
-            console.log(response.media.code);
+            logger.info({"Post ID":response.media.code});
             res.json({ "Post Url": `https://www.instagram.com/p/${response.media.code}` });
         }catch(error){
-            console.error('Error : ', error);
+            logger.error({"Error": error})
             res.status(500).json({ error: 'Failed to post to Instagram' });
         }
             console.log(username);
             ig.state.generateDevice(username);
 
         } catch (error) {
-    console.error('Error in POST /post:', error);
+    logger.error('Error in POST /post:', error);
     res.status(500).json({ error: 'Internal server error' });
 }
 })
