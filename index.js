@@ -60,6 +60,6 @@ app.post('/post', async(req,res) =>{
 
 
   app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });
 
