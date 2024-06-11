@@ -23,7 +23,9 @@ const logger = winston.createLogger({
     ],
     
   });
-
+app.get('/',(req,res)=>{
+    res.json({"HELLO":"INSTAGRAM"})
+})
 app.post('/post', async(req,res) =>{
     logger.info({"Body":"Caption : "+req.body.caption +", Image : "+ req.body.imageUrl +", Username : "+ req.body.username })
 
